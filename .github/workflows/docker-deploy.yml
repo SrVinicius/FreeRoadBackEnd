@@ -21,6 +21,12 @@ jobs:
         with:
           username: ${{ secrets.DOCKER_HUB_USERNAME }}
           password: ${{ secrets.DOCKER_HUB_TOKEN }}
+          
+      - name: Debug Docker Login
+        run: |
+          echo "Checking Docker login status..."
+          echo "Username used: ${{ secrets.DOCKER_HUB_USERNAME }}"
+          docker info
 
       - name: Build and push Docker image
         uses: docker/build-push-action@v4
@@ -28,7 +34,7 @@ jobs:
           context: .
           file: ./Dockerfile.prod
           push: true
-          tags: ${{ secrets.DOCKER_HUB_USERNAME }}/backend2025api:latest, ${{ secrets.DOCKER_HUB_USERNAME }}/backend2025api:${{ github.sha }}
+          tags: ${{ secrets.DOCKER_HUB_USERNAME }}/freeroad-api:latest, ${{ secrets.DOCKER_HUB_USERNAME }}/freeroad-api:${{ github.sha }}
 
       - name: Trigger Render Deploy
         if: success()
