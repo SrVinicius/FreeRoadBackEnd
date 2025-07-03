@@ -1,5 +1,5 @@
 import re
-from blog.api.security import get_password_hash, verify_password
+from freeroad.api.security import get_password_hash, verify_password
 
 
 class PasswordValidationError(Exception):

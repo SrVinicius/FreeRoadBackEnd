@@ -1,6 +1,6 @@
-from blog.infra.repositories.in_memory_user_repository import InMemoryUserRepository
-from blog.infra.repositories.in_memory_post_repository import InMemoryPostRepository
-from blog.infra.repositories.in_memory_comment_repository import (
+from freeroad.infra.repositories.in_memory_user_repository import InMemoryUserRepository
+from freeroad.infra.repositories.in_memory_post_repository import InMemoryPostRepository
+from freeroad.infra.repositories.in_memory_comment_repository import (
     InMemoryCommentRepository,
 )
 

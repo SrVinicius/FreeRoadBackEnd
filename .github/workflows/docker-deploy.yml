@@ -37,6 +37,14 @@ jobs:
           tags: ${{ secrets.DOCKER_HUB_USERNAME }}/freeroad-api:latest, ${{ secrets.DOCKER_HUB_USERNAME }}/freeroad-api:${{ github.sha }}
 
       - name: Trigger Render Deploy
-        if: success()
+        if: success() && env.RENDER_DEPLOY_HOOK != ''
+        env:
+          RENDER_DEPLOY_HOOK: ${{ secrets.RENDER_DEPLOY_HOOK }}
         run: |
-          curl -X POST ${{ secrets.RENDER_DEPLOY_HOOK }}
+          if [ -n "$RENDER_DEPLOY_HOOK" ]; then
+            echo "Triggering Render deploy..."
+            curl -X POST $RENDER_DEPLOY_HOOK
+          else
+            echo "RENDER_DEPLOY_HOOK is not configured. Skipping Render deployment."
+            echo "To configure: Add your Render deploy hook URL as a secret named RENDER_DEPLOY_HOOK in your GitHub repository."
+          fi

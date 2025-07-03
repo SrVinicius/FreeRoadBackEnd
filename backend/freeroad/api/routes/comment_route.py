@@ -1,14 +1,14 @@
 from fastapi import APIRouter, HTTPException
 from pydantic import BaseModel
 from typing import List
-from blog.api.deps import comment_repo
-from blog.usecases.comment.add_comment import AddCommentUseCase
-from blog.usecases.comment.delete_comment import DeleteCommentUseCase
-from blog.usecases.comment.get_comments_by_post import GetCommentsByPostUseCase
-from blog.usecases.comment.get_comments_by_user import GetCommentsByUserUseCase
-from blog.domain.entities.comment import Comment
+from freeroad.api.deps import comment_repo
+from freeroad.usecases.comment.add_comment import AddCommentUseCase
+from freeroad.usecases.comment.delete_comment import DeleteCommentUseCase
+from freeroad.usecases.comment.get_comments_by_post import GetCommentsByPostUseCase
+from freeroad.usecases.comment.get_comments_by_user import GetCommentsByUserUseCase
+from freeroad.domain.entities.comment import Comment
 import uuid
-from blog.api.schemas.comment_schema import AddCommentInput, CommentOutput
+from freeroad.api.schemas.comment_schema import AddCommentInput, CommentOutput
 
 router = APIRouter()
 

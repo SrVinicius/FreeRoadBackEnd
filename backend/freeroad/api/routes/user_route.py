@@ -1,17 +1,17 @@
 from fastapi import APIRouter, HTTPException
 from pydantic import BaseModel
-from blog.api.deps import user_repo
-from blog.usecases.user.register_user import RegisterUserUseCase
-from blog.usecases.user.login_user import LoginUserUseCase
-from blog.usecases.user.logout_user import LogoutUserUseCase
-from blog.usecases.user.get_current_user import GetCurrentUserUseCase
-from blog.usecases.user.set_current_user import SetCurrentUserUseCase
-from blog.domain.entities.user import User
-from blog.domain.value_objects.email_vo import Email
-from blog.domain.value_objects.password import Password
+from freeroad.api.deps import user_repo
+from freeroad.usecases.user.register_user import RegisterUserUseCase
+from freeroad.usecases.user.login_user import LoginUserUseCase
+from freeroad.usecases.user.logout_user import LogoutUserUseCase
+from freeroad.usecases.user.get_current_user import GetCurrentUserUseCase
+from freeroad.usecases.user.set_current_user import SetCurrentUserUseCase
+from freeroad.domain.entities.user import User
+from freeroad.domain.value_objects.email_vo import Email
+from freeroad.domain.value_objects.password import Password
 import uuid
 
-from blog.api.schemas.user_schema import (
+from freeroad.api.schemas.user_schema import (
     RegisterUserInput,
     LoginUserInput,
     UserOutput,

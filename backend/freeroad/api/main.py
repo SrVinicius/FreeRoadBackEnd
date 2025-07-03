@@ -1,6 +1,6 @@
 from fastapi import FastAPI
-from blog.api.routes import comment_route, post_route, user_route
-from blog.api.openapi_tags import openapi_tags
+from freeroad.api.routes import comment_route, post_route, user_route
+from freeroad.api.openapi_tags import openapi_tags
 
 
 app = FastAPI(

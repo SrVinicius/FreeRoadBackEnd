@@ -1,13 +1,13 @@
 from fastapi import APIRouter, HTTPException
-from blog.api.deps import post_repo
-from blog.usecases.post.create_post import CreatePostUseCase
-from blog.usecases.post.delete_post import DeletePostUseCase
-from blog.usecases.post.get_all_posts import GetAllPostsUseCase
-from blog.usecases.post.get_post_by_id import GetPostByIdUseCase
-from blog.usecases.post.update_post import UpdatePostUseCase
-from blog.domain.entities.post import Post
+from freeroad.api.deps import post_repo
+from freeroad.usecases.post.create_post import CreatePostUseCase
+from freeroad.usecases.post.delete_post import DeletePostUseCase
+from freeroad.usecases.post.get_all_posts import GetAllPostsUseCase
+from freeroad.usecases.post.get_post_by_id import GetPostByIdUseCase
+from freeroad.usecases.post.update_post import UpdatePostUseCase
+from freeroad.domain.entities.post import Post
 import uuid
-from blog.api.schemas.post_schema import PostOutput, PostCreateInput, PostUpdateInput
+from freeroad.api.schemas.post_schema import PostOutput, PostCreateInput, PostUpdateInput
 
 router = APIRouter()
 
