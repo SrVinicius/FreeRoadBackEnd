@@ -1,0 +1,29 @@
+{
+  "name": "Blog API Dev",
+  "dockerComposeFile": "../docker-compose.yml",
+  "service": "blog",
+  "workspaceFolder": "/home/devuser/app",
+  "remoteUser": "devuser",
+  "forwardPorts": [
+    8080
+  ],
+  "mounts": [
+    "source=${localWorkspaceFolder}/backend,target=/home/devuser/app,type=bind"
+  ],
+  "postCreateCommand": "pip install -r requirements.txt",
+  "customizations": {
+    "vscode": {
+      "settings": {
+        "terminal.integrated.defaultProfile.linux": "bash",
+        "python.defaultInterpreterPath": "/usr/local/bin/python"
+      },
+      "extensions": [
+        "ms-python.python",
+        "ms-python.vscode-pylance",
+        "ms-vscode.makefile-tools",
+        "ms-azuretools.vscode-docker",
+        "humao.rest-client"
+      ]
+    }
+  }
+}
