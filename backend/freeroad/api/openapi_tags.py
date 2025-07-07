@@ -4,11 +4,7 @@ openapi_tags = [
         "description": "Operações de autenticação e cadastro de usuários.",
     },
     {
-        "name": "Posts",
-        "description": "Criação, listagem, edição e remoção de posts.",
-    },
-    {
-        "name": "Comments",
-        "description": "Ações relacionadas a comentários em posts.",
+        "name": "Weeks",
+        "description": "Registro, monitoramento e análise de abastecimentos de combustível.",
     },
 ]
