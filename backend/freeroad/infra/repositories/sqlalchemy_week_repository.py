@@ -21,6 +21,17 @@ class SQLAlchemyWeekRepository(WeekRepository):
             return None
         return self._model_to_entity(week_model)
     
+    def add_final_km(self, week_id: int, final_km: float):
+        # Implementação do método
+        # Por exemplo:
+        session = self._get_session()
+        week = session.query(WeekModel).filter(WeekModel.id == week_id).first()
+        if week:
+            week.final_km = final_km
+            session.commit()
+            return True
+        return False
+    
     def get_by_user_id(self, user_id: str) -> List[Week]:
         week_models = self.session.query(WeekModel).filter(WeekModel.user_id == user_id).all()
         return [self._model_to_entity(model) for model in week_models]
