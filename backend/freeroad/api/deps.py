@@ -4,6 +4,7 @@ from freeroad.infra.database import SessionLocal
 from freeroad.infra.repositories.sqlalchemy_week_repository import SQLAlchemyWeekRepository
 from freeroad.infra.repositories.in_memory_user_repository import InMemoryUserRepository
 
+
 # Instâncias em memória para simulação
 user_repo = InMemoryUserRepository()
 
@@ -15,9 +16,8 @@ def get_db():
     finally:
         db.close()
 
-# Crie uma função para obter o repositório
+# Função para obter o repositório de Week com injeção de dependência
 def get_week_repository(db: Session = Depends(get_db)):
     return SQLAlchemyWeekRepository(session=db)
 
-# Faça o mesmo para outros repositórios
-
+# Faça o mesmo para outros repositórios, se necessário
