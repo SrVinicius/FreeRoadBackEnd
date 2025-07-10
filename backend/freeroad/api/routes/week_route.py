@@ -1,6 +1,7 @@
 from fastapi import APIRouter, Depends, HTTPException, status
 from typing import List, Optional
 from uuid import uuid4
+from datetime import datetime
 
 from freeroad.domain.entities.week import Week
 from freeroad.api.deps import get_week_repository
@@ -28,9 +29,17 @@ def get_all_weeks(week_repo=Depends(get_week_repository)):
     """
     Retorna todos os registros de abastecimento.
     """
-    usecase = GetAllWeeksUseCase(week_repo)
-    weeks = usecase.execute()
-    return weeks
+    try:
+        usecase = GetAllWeeksUseCase(week_repo)
+        weeks = usecase.execute()
+        print(f"Debug: Found {len(weeks) if weeks else 0} weeks")
+        print(f"Debug: Week types: {[type(w) for w in weeks] if weeks else []}")
+        return weeks
+    except Exception as e:
+        import traceback
+        print(f"Error in get_all_weeks: {str(e)}")
+        traceback.print_exc()
+        raise HTTPException(status_code=500, detail=str(e))
 
 
 @router.get("/{week_id}", response_model=WeekResponse)
@@ -71,7 +80,9 @@ def create_week(week_data: WeekCreate, week_repo=Depends(get_week_repository)):
         kmFinal="0",  # Será atualizado posteriormente
         custo=str(week_data.custo),
         eficiencia="0",  # Será calculado posteriormente
-        litrosAbastecidos=str(week_data.litrosAbastecidos)
+        litrosAbastecidos=str(week_data.litrosAbastecidos),
+        created_at=datetime.utcnow(),
+        updated_at=datetime.utcnow(),
     )
     
     usecase = CreateWeekUseCase(week_repo)

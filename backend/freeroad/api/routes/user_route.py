@@ -44,7 +44,7 @@ def register_user(data: RegisterUserInput):
         result = usecase.execute(user)
         return RegisterUserResponse(
             message="User registered successfully",
-            result=UserOutput(
+            user=UserOutput(
                 id=result.id,
                 name=result.name,
                 email=str(result.email.value),

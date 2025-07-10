@@ -14,7 +14,7 @@ services:
       - "8080:8080"
     depends_on:
       - db
-    command: uvicorn blog.api.main:app --host 0.0.0.0 --port 8080 --reload
+    command: uvicorn freeroad.api.main:app --host 0.0.0.0 --port 8080 --reload
     networks:
       - minha_rede_app
 
