@@ -11,6 +11,7 @@ class Email:
         pattern = r"^[\w\.-]+@[\w\.-]+\.\w+$"
         return re.match(pattern, email) is not None
 
+    @property
     def value(self) -> str:
         return self._value
 
