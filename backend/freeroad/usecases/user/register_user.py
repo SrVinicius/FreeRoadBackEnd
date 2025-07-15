@@ -7,5 +7,7 @@ class RegisterUserUseCase:
     def __init__(self, repository: UserRepository):
         self.repository = repository
 
-    def execute(self, user: User) -> Optional[User]:
-        return self.repository.register(user)
+    async def execute(self, user: User):
+        await self.repository.register(user)
+        await self.repository.set_current_user(user)  # Set the current user
+        return user

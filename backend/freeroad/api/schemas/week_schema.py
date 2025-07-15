@@ -14,6 +14,8 @@ class WeekBase(BaseModel):
 class WeekCreate(WeekBase):
     """Schema para criação de um novo registro de abastecimento."""
     user_id: Optional[str] = Field(None, description="ID do usuário (preenchido automaticamente)")
+    kmFinal: Optional[float] = Field(None, description="Quilometragem final do veículo")
+    eficiencia: Optional[float] = Field(None, description="Eficiência em km/l")
 
 
 class WeekUpdate(WeekBase):
@@ -24,7 +26,7 @@ class WeekUpdate(WeekBase):
 
 class WeekFinalKm(BaseModel):
     """Schema para adicionar apenas a quilometragem final."""
-    kmFinal: float = Field(..., description="Quilometragem final do veículo")
+    final_km: float
 
 
 class WeekResponse(WeekBase):

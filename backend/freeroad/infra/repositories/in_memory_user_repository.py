@@ -7,29 +7,39 @@ from typing import Optional
 
 class InMemoryUserRepository(UserRepository):
     def __init__(self):
-        self._users = {}
-        self._current_user_id = None
+        self.users = {}
+        self.current_user = None
 
-    def register(self, user: User) -> User:
-        self._users[user.id] = user
-        self._current_user_id = user.id
-        return user
+    async def register(self, user: User):
+        self.users[user.id] = user
 
-    def login(self, email: Email, password: Password) -> Optional[User]:
-        for user in self._users.values():
+    async def get_current_user(self):
+        return self.current_user
+
+    async def login(self, email: Email, password: Password):
+        for user in self.users.values():
             if user.email == email and user.password == password:
-                self._current_user_id = user.id
+                self.current_user = user
                 return user
         return None
 
-    def logout(self) -> None:
-        self._current_user_id = None
+    async def logout(self):
+        self.current_user = None
 
-    def get_current_user(self) -> Optional[User]:
-        if self._current_user_id is None:
-            return None
-        return self._users.get(self._current_user_id)
+    async def set_current_user(self, user: User):
+        self.current_user = user
 
-    def set_current_user(self, user: User) -> None:
-        self._users[user.id] = user
-        self._current_user_id = user.id
+    async def get_by_email(self, email: Email) -> Optional[User]:
+        """
+        Busca um usuário pelo email.
+
+        Args:
+            email (Email): O email do usuário a ser buscado.
+
+        Returns:
+            Optional[User]: O usuário encontrado ou None se não existir.
+        """
+        for user in self.users.values():
+            if user.email == email:
+                return user
+        return None

@@ -27,3 +27,7 @@ def get_sqlalchemy_week_repository(db: Session = Depends(get_db)):
     return SQLAlchemyWeekRepository(session=db)
 
 # Faça o mesmo para outros repositórios, se necessário
+
+# Function to get the user repository
+def get_user_repository():
+    return user_repo

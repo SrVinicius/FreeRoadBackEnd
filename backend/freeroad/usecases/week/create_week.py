@@ -7,7 +7,7 @@ class CreateWeekUseCase:
     def __init__(self, repository: WeekRepository):
         self.repository = repository
 
-    def execute(self, week: Week) -> Optional[Week]:
+    async def execute(self, week: Week) -> Optional[Week]:
         """
         Cria um novo registro de abastecimento.
         
@@ -17,4 +17,4 @@ class CreateWeekUseCase:
         Returns:
             Week: O objeto Week criado, ou None se a criação falhar
         """
-        return self.repository.create(week)
+        return await self.repository.create(week)
