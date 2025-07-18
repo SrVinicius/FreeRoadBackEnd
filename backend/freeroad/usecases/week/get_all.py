@@ -7,11 +7,11 @@ class GetAllWeeksUseCase:
     def __init__(self, repository: WeekRepository):
         self.repository = repository
 
-    def execute(self) -> List[Week]:
+    async def execute(self) -> List[Week]:
         """
         Obtém todos os registros de abastecimento.
         
         Returns:
             List[Week]: Lista de todos os registros de abastecimento
         """
-        return self.repository.get_all()
+        return await self.repository.get_all()

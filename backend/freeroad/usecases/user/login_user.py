@@ -9,5 +9,5 @@ class LoginUserUseCase:
     def __init__(self, repository: UserRepository):
         self.repository = repository
 
-    def execute(self, email: Email, password: Password) -> Optional[User]:
-        return self.repository.login(email, password)
+    async def execute(self, email: Email, password: Password) -> Optional[User]:
+        return await self.repository.login(email, password)

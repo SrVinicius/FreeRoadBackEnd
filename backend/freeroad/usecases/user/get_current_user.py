@@ -7,5 +7,5 @@ class GetCurrentUserUseCase:
     def __init__(self, repository: UserRepository):
         self.repository = repository
 
-    def execute(self) -> Optional[User]:
-        return self.repository.get_current_user()
+    async def execute(self) -> Optional[User]:
+        return await self.repository.get_current_user()

@@ -7,7 +7,7 @@ class GetWeeksByUserIdUseCase:
     def __init__(self, repository: WeekRepository):
         self.repository = repository
 
-    def execute(self, user_id: str) -> List[Week]:
+    async def execute(self, user_id: str) -> List[Week]:
         """
         Obtém todos os registros de abastecimento de um usuário específico.
         
@@ -17,4 +17,4 @@ class GetWeeksByUserIdUseCase:
         Returns:
             List[Week]: Lista de registros de abastecimento do usuário
         """
-        return self.repository.get_by_user_id(user_id)
+        return await self.repository.get_by_user_id(user_id)

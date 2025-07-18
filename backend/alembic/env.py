@@ -9,10 +9,9 @@ from alembic import context
 from dotenv import load_dotenv
 load_dotenv()
 
-from blog.infra.database import Base # <--- Ajuste seu caminho aqui!
-from blog.infra.models.comment_model import CommentModel # <--- Ajuste seu caminho aqui!
-from blog.infra.models.post_model import PostModel # <--- Ajuste seu caminho aqui! 
-from blog.infra.models.user_model import UserModel # <--- Ajuste seu caminho aqui!
+from freeroad.infra.database import Base # <--- Ajuste seu caminho aqui!
+from freeroad.infra.models.user_model import UserModel # <--- Ajuste seu caminho aqui!
+from freeroad.infra.models.week_model import WeekModel # <--- Ajuste seu caminho aqui!
 
 config = context.config
 if config.config_file_name is not None:

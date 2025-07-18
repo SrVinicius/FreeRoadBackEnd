@@ -7,7 +7,7 @@ services:
       dockerfile: Dockerfile.dev
     container_name: blog
     env_file:
-      - backend/.env
+      - ./backend/.env
     volumes:
       - .:/app
     ports:
@@ -23,9 +23,9 @@ services:
     restart: unless-stopped
     container_name: db
     env_file:
-      - backend/.env
+      - ./backend/.env
     ports:
-      - "${POSTGRES_PORT}:5432"
+      - "${POSTGRES_PORT:-5432}:5432"
     volumes:
       - postgres_data:/var/lib/postgresql/data
     networks:
@@ -36,9 +36,9 @@ services:
     restart: always
     container_name: pgadmin
     env_file:
-      - backend/.env
+      - ./backend/.env
     ports:
-      - "${PGADMIN_PORT}:80"
+      - "${PGADMIN_PORT:-5050}:80"
     depends_on:
       - db
     volumes:

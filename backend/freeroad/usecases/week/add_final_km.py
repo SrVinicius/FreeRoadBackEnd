@@ -7,7 +7,7 @@ class AddFinalKmUseCase:
     def __init__(self, repository: WeekRepository):
         self.repository = repository
 
-    def execute(self, week_id: str, final_km: float) -> Optional[Week]:
+    async def execute(self, week_id: str, final_km: float) -> Optional[Week]:
         """
         Adiciona a quilometragem final a um registro de abastecimento e
         calcula a eficiência com base na distância percorrida e litros abastecidos.
@@ -19,4 +19,4 @@ class AddFinalKmUseCase:
         Returns:
             Week: O objeto Week atualizado, ou None se não encontrado
         """
-        return self.repository.add_final_km(week_id, final_km)
+        return await self.repository.add_final_km(week_id, final_km)

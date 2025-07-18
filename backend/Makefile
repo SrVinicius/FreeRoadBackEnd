@@ -6,7 +6,7 @@ test:
 	pytest -v
 
 # test-cov:
-# 	pytest --cov=blog --cov-report=term-missing -v
+# 	pytest --cov=freeroad --cov-report=term-missing -v
 
 test-cov:
 	coverage run -m pytest
@@ -14,13 +14,13 @@ test-cov:
 	coverage html
 
 lint:
-	black blog tests --check
+	black freeroad tests --check
 
 format:
-	black blog tests
+	black freeroad tests
 
 typecheck:
-	mypy blog --explicit-package-bases
+	mypy freeroad --explicit-package-bases --check-untyped-defs
 
 # Alembic
 
@@ -40,5 +40,5 @@ downgrade:
 	alembic downgrade -1
 
 run:
-	uvicorn blog.api.main:app --reload --host 0.0.0.0 --port 8000
+	uvicorn freeroad.api.main:app --reload --host 0.0.0.0 --port 8000
 	

@@ -7,7 +7,7 @@ class GetWeekByIdUseCase:
     def __init__(self, repository: WeekRepository):
         self.repository = repository
 
-    def execute(self, week_id: str) -> Optional[Week]:
+    async def execute(self, week_id: str) -> Optional[Week]:
         """
         Obtém um registro de abastecimento pelo ID.
         
@@ -17,4 +17,4 @@ class GetWeekByIdUseCase:
         Returns:
             Week: O objeto Week correspondente, ou None se não encontrado
         """
-        return self.repository.get_by_id(week_id)
+        return await self.repository.get_by_id(week_id)

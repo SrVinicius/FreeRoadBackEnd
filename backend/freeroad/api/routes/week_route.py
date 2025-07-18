@@ -2,9 +2,10 @@ from fastapi import APIRouter, Depends, HTTPException, status
 from typing import List, Optional
 from uuid import uuid4
 from datetime import datetime
+from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
 
 from freeroad.domain.entities.week import Week
-from freeroad.api.deps import get_week_repository
+from freeroad.api.deps import get_week_repository, get_user_repository
 from freeroad.usecases.week.get_all import GetAllWeeksUseCase
 from freeroad.usecases.week.get_by_id import GetWeekByIdUseCase
 from freeroad.usecases.week.get_by_user_id import GetWeeksByUserIdUseCase
@@ -23,9 +24,25 @@ from freeroad.api.schemas.week_schema import (
 
 router = APIRouter()
 
+security = HTTPBearer()
 
+async def get_current_user_token(
+    credentials: HTTPAuthorizationCredentials = Depends(security),
+    user_repo=Depends(get_user_repository)  # Certifique-se de usar o repositório correto
+):
+    token = credentials.credentials
+    # Simula a lógica de autenticação para os testes
+    user = await user_repo.get_current_user()
+    if not user or user.id != token:
+        raise HTTPException(status_code=401, detail="Usuário não autenticado.")
+    return user
+
+# Todas as rotas protegidas abaixo:
 @router.get("/", response_model=List[WeekResponse])
-async def get_all_weeks(week_repo=Depends(get_week_repository)):
+async def get_all_weeks(
+    week_repo=Depends(get_week_repository),
+    user=Depends(get_current_user_token)
+):
     """
     Retorna todos os registros de abastecimento.
     """
@@ -43,7 +60,11 @@ async def get_all_weeks(week_repo=Depends(get_week_repository)):
 
 
 @router.get("/{week_id}", response_model=WeekResponse)
-async def get_week_by_id(week_id: str, week_repo=Depends(get_week_repository)):
+async def get_week_by_id(
+    week_id: str,
+    week_repo=Depends(get_week_repository),
+    user=Depends(get_current_user_token)
+):
     """
     Retorna um registro de abastecimento específico pelo ID.
     """
@@ -58,7 +79,11 @@ async def get_week_by_id(week_id: str, week_repo=Depends(get_week_repository)):
 
 
 @router.get("/user/{user_id}", response_model=List[WeekResponse])
-async def get_weeks_by_user_id(user_id: str, week_repo=Depends(get_week_repository)):
+async def get_weeks_by_user_id(
+    user_id: str,
+    week_repo=Depends(get_week_repository),
+    user=Depends(get_current_user_token)
+):
     """
     Retorna todos os registros de abastecimento de um usuário específico.
     """
@@ -68,18 +93,21 @@ async def get_weeks_by_user_id(user_id: str, week_repo=Depends(get_week_reposito
 
 
 @router.post("/", response_model=WeekResponse, status_code=status.HTTP_201_CREATED)
-async def create_week(week_data: WeekCreate, week_repo=Depends(get_week_repository)):
+async def create_week(
+    week_data: WeekCreate,
+    week_repo=Depends(get_week_repository)
+):
     week = Week(
         id=str(uuid4()),
-        user_id=week_data.user_id,
+        user_id=week_data.user_id or "",  # Ensure user_id is a string
         title=week_data.title,
         kmAtual=str(week_data.kmAtual),
         kmFinal=str(week_data.kmFinal) if hasattr(week_data, "kmFinal") else "0",
         custo=str(week_data.custo),
-        eficiencia=str(week_data.eficiencia) if week_data.eficiencia is not None else None,
+        eficiencia=str(week_data.eficiencia) if week_data.eficiencia else "0",  # Default to "0" if None
         litrosAbastecidos=str(week_data.litrosAbastecidos),
-        created_at=datetime.now().isoformat(),
-        updated_at=datetime.now().isoformat(),
+        created_at=datetime.now(),  # Use datetime object
+        updated_at=datetime.now(),  # Use datetime object
     )
     usecase = CreateWeekUseCase(week_repo)
     created_week = await usecase.execute(week)
@@ -87,7 +115,11 @@ async def create_week(week_data: WeekCreate, week_repo=Depends(get_week_reposito
 
 
 @router.delete("/{week_id}", status_code=status.HTTP_204_NO_CONTENT)
-async def delete_week(week_id: str, week_repo=Depends(get_week_repository)):
+async def delete_week(
+    week_id: str,
+    week_repo=Depends(get_week_repository),
+    user=Depends(get_current_user_token)
+):
     """
     Remove um registro de abastecimento.
     """
@@ -97,7 +129,12 @@ async def delete_week(week_id: str, week_repo=Depends(get_week_repository)):
 
 
 @router.put("/{week_id}/final_km", response_model=WeekResponse)
-async def add_final_km(week_id: str, data: WeekFinalKm, week_repo=Depends(get_week_repository)):
+async def add_final_km(
+    week_id: str,
+    data: WeekFinalKm,
+    week_repo=Depends(get_week_repository),
+    user=Depends(get_current_user_token)
+):
     """
     Adiciona a quilometragem final e calcula a eficiência.
     """
@@ -114,7 +151,11 @@ async def add_final_km(week_id: str, data: WeekFinalKm, week_repo=Depends(get_we
 
 
 @router.get("/{user_id}/average_efficiency")
-async def get_average_efficiency(user_id: str, week_repo=Depends(get_week_repository)):
+async def get_average_efficiency(
+    user_id: str,
+    week_repo=Depends(get_week_repository),
+    user=Depends(get_current_user_token)
+):
     """
     Calcula a eficiência média de combustível para um usuário.
     """

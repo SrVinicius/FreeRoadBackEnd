@@ -10,6 +10,8 @@ from freeroad.domain.entities.user import User
 from freeroad.domain.value_objects.email_vo import Email
 from freeroad.domain.value_objects.password import Password
 import uuid
+from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
+from fastapi import Depends
 
 from freeroad.api.schemas.user_schema import (
     RegisterUserInput,
@@ -20,26 +22,83 @@ from freeroad.api.schemas.user_schema import (
 
 router = APIRouter()
 
+security = HTTPBearer()
+
+async def get_current_user_token(credentials: HTTPAuthorizationCredentials = Depends(security)):
+    token = credentials.credentials
+    user = await user_repo.get_current_user()
+    if not user or user.id != token:
+        raise HTTPException(status_code=401, detail="Usuário não autenticado.")
+    return user
+
+# ----------------------
+# Login
+# ----------------------
+
+@router.post("/login")
+async def login_user(data: LoginUserInput):
+    user = await user_repo.get_by_email(Email(data.email))
+    if not user or not user.password.verify(data.password):
+        raise HTTPException(status_code=401, detail="Credenciais inválidas.")
+    await user_repo.set_current_user(user)
+    return {"access_token": user.id, "token_type": "bearer"}
+
+# ----------------------
+# Logout
+# ----------------------
+
+@router.post(
+    "/logout",
+    summary="Fazer o Logout do usuário",
+    description="Descredencia o usuário autenticado.",
+)
+async def logout_user(user=Depends(get_current_user_token)):
+    try:
+        usecase = LogoutUserUseCase(user_repo)
+        await usecase.execute()
+        return {"message": "Logout successful"}
+    except ValueError as e:
+        raise HTTPException(status_code=400, detail=str(e))
+
+# ----------------------
+# Get Current User
+# ----------------------
+
+@router.get(
+    "/me",
+    response_model=UserOutput,
+    summary="Informar os dados do usuário atual",
+    description="Retorna os dados do usuário atual.",
+)
+async def get_current_user_route(user=Depends(get_current_user_token)):
+    return {
+        "id": user.id,
+        "name": user.name,
+        "email": str(user.email.value),
+        "role": user.role,
+    }
+
 # ----------------------
 # Register
 # ----------------------
 
-
 @router.post(
     "/register",
     response_model=RegisterUserResponse,
-    status_code=201,  # Correct status code
+    status_code=201,
     summary="Registrar novo usuário",
     description="Cria um novo usuário com nome, email e senha forte.",
 )
-async def register_user(data: RegisterUserInput):
+async def register_user(
+    data: RegisterUserInput,
+):
     try:
         # Check for duplicate email
         existing_user = await user_repo.get_by_email(Email(data.email))
         if existing_user:
             raise HTTPException(status_code=400, detail="Email já está registrado.")
 
-        user = User(
+        user_obj = User(
             id=str(uuid.uuid4()),
             name=data.name,
             email=Email(data.email),
@@ -47,7 +106,7 @@ async def register_user(data: RegisterUserInput):
             role=data.role,
         )
         usecase = RegisterUserUseCase(user_repo)
-        result = await usecase.execute(user)
+        result = await usecase.execute(user_obj)
         return RegisterUserResponse(
             message="User registered successfully",
             user=UserOutput(
@@ -59,67 +118,3 @@ async def register_user(data: RegisterUserInput):
         )
     except ValueError as e:
         raise HTTPException(status_code=400, detail=str(e))
-
-
-# ----------------------
-# Login
-# ----------------------
-
-
-@router.post("/login")
-async def login_user(data: LoginUserInput):
-    user = await user_repo.get_by_email(Email(data.email))
-    if not user or not user.password.verify(data.password):
-        raise HTTPException(status_code=401, detail="Credenciais inválidas.")
-    await user_repo.set_current_user(user)
-    return {"access_token": user.id, "token_type": "bearer"}
-
-
-# ----------------------
-# Logout
-# ----------------------
-
-
-@router.post(
-    "/logout",
-    summary="Fazer o Logout do usuário",
-    description="Descredencia o usuário autenticado.",
-)
-async def logout_user():
-    try:
-        usecase = LogoutUserUseCase(user_repo)
-        await usecase.execute()
-        return {"message": "Logout successful"}
-    except ValueError as e:
-        raise HTTPException(status_code=400, detail=str(e))
-
-
-# ----------------------
-# Get Current User
-# ----------------------
-
-
-from fastapi import Request
-
-@router.get(
-    "/me",
-    response_model=UserOutput,
-    summary="Informar os dados do usuário atual",
-    description="Retorna os dados do usuário atual.",
-)
-async def get_current_user(request: Request):
-    auth_header = request.headers.get("Authorization")
-    if not auth_header or not auth_header.startswith("Bearer "):
-        raise HTTPException(status_code=401, detail="Usuário não autenticado.")
-
-    token = auth_header.split(" ", 1)[1]
-    user = await user_repo.get_current_user()
-    if not user or user.id != token:
-        raise HTTPException(status_code=401, detail="Usuário não autenticado.")
-
-    return {
-        "id": user.id,
-        "name": user.name,
-        "email": str(user.email.value),
-        "role": user.role,
-    }

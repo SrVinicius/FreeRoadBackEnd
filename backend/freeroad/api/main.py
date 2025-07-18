@@ -16,12 +16,12 @@ app = FastAPI(
 )
 
 # Configurando o repositório em memória
-user_repository = InMemoryUserRepository()
+# user_repository = InMemoryUserRepository()
 
-def get_user_repository_override():
-    return user_repository
+# def get_user_repository_override():
+#     return user_repository
 
-app.dependency_overrides[get_user_repository] = get_user_repository_override
+# app.dependency_overrides[get_user_repository] = get_user_repository_override
 
 
 @app.get("/")
