@@ -40,3 +40,8 @@ class Password:
 
     def __str__(self):
         return self._hashed
+
+    @property
+    def value(self) -> str:
+        """Retorna o valor hash da senha."""
+        return self._hashed

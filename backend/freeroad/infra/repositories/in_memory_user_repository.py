@@ -39,7 +39,12 @@ class InMemoryUserRepository(UserRepository):
         Returns:
             Optional[User]: O usuário encontrado ou None se não existir.
         """
+        print(f"Searching for email: {email.value}")  # Log para verificar o email recebido
+        print(f"Stored users: {self.users}")  # Log para verificar os usuários armazenados
         for user in self.users.values():
+            print(f"Checking user: {user.email.value}")  # Log para verificar cada usuário
             if user.email == email:
+                print(f"User found: {user}")  # Log para verificar o usuário encontrado
                 return user
+        print("No user found")  # Log para indicar que nenhum usuário foi encontrado
         return None

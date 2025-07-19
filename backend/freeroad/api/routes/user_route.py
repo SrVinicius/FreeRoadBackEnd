@@ -1,6 +1,11 @@
 from fastapi import APIRouter, HTTPException
 from pydantic import BaseModel
+# in_memory e sqlalchemy
+# |
 from freeroad.api.deps import user_repo
+from freeroad.api.deps import get_sqlalchemy_user_repository
+# |
+# 
 from freeroad.usecases.user.register_user import RegisterUserUseCase
 from freeroad.usecases.user.login_user import LoginUserUseCase
 from freeroad.usecases.user.logout_user import LogoutUserUseCase
@@ -9,6 +14,8 @@ from freeroad.usecases.user.set_current_user import SetCurrentUserUseCase
 from freeroad.domain.entities.user import User
 from freeroad.domain.value_objects.email_vo import Email
 from freeroad.domain.value_objects.password import Password
+from freeroad.domain.value_objects.password import PasswordValidationError
+
 import uuid
 from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
 from fastapi import Depends
@@ -26,8 +33,11 @@ security = HTTPBearer()
 
 async def get_current_user_token(credentials: HTTPAuthorizationCredentials = Depends(security)):
     token = credentials.credentials
+    print(f"Token received: {token}")  # Log para verificar o token recebido
     user = await user_repo.get_current_user()
+    print(f"Current user: {user}")  # Log para verificar o usuário atual
     if not user or user.id != token:
+        print("Authentication failed")  # Log para falha de autenticação
         raise HTTPException(status_code=401, detail="Usuário não autenticado.")
     return user
 
@@ -36,7 +46,10 @@ async def get_current_user_token(credentials: HTTPAuthorizationCredentials = Dep
 # ----------------------
 
 @router.post("/login")
-async def login_user(data: LoginUserInput):
+async def login_user(
+    data: LoginUserInput,
+    user_repo=Depends(get_sqlalchemy_user_repository)  # Usando o repositório SQLAlchemy
+):
     user = await user_repo.get_by_email(Email(data.email))
     if not user or not user.password.verify(data.password):
         raise HTTPException(status_code=401, detail="Credenciais inválidas.")
@@ -70,7 +83,22 @@ async def logout_user(user=Depends(get_current_user_token)):
     summary="Informar os dados do usuário atual",
     description="Retorna os dados do usuário atual.",
 )
-async def get_current_user_route(user=Depends(get_current_user_token)):
+async def get_current_user_route(
+    user_repo=Depends(get_sqlalchemy_user_repository),  # Usando o repositório SQLAlchemy
+    credentials: HTTPAuthorizationCredentials = Depends(security),
+):
+    print("Endpoint /me called")  # Log para verificar se a rota foi chamada
+    token = credentials.credentials
+    print(f"Token received: {token}")  # Log para verificar o token recebido
+
+    # Buscar o usuário pelo token (assumindo que o token é o user.id)
+    user = await user_repo.get_by_id(token)
+    print(f"User retrieved: {user}")  # Log para verificar o usuário encontrado
+
+    if not user:
+        print("Authentication failed")  # Log para falha de autenticação
+        raise HTTPException(status_code=401, detail="Usuário não autenticado.")
+
     return {
         "id": user.id,
         "name": user.name,
@@ -91,6 +119,7 @@ async def get_current_user_route(user=Depends(get_current_user_token)):
 )
 async def register_user(
     data: RegisterUserInput,
+    user_repo=Depends(get_sqlalchemy_user_repository)
 ):
     try:
         # Check for duplicate email
@@ -102,7 +131,7 @@ async def register_user(
             id=str(uuid.uuid4()),
             name=data.name,
             email=Email(data.email),
-            password=Password(data.password),  # Validate password during registration
+            password=Password(data.password),  # Validação ocorre aqui
             role=data.role,
         )
         usecase = RegisterUserUseCase(user_repo)
@@ -116,5 +145,12 @@ async def register_user(
                 role=result.role,
             ),
         )
-    except ValueError as e:
+    except PasswordValidationError as e:
+        # Captura erros de validação de senha e retorna como resposta HTTP
         raise HTTPException(status_code=400, detail=str(e))
+    except HTTPException as e:
+        raise e  # Re-raise HTTP exceptions
+    except Exception as e:
+        # Log the error and return a generic message
+        print(f"Error during user registration: {e}")
+        raise HTTPException(status_code=500, detail="Erro interno no servidor.")

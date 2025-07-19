@@ -3,6 +3,7 @@ from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
 from sqlalchemy.ext.asyncio import AsyncSession
 # from freeroad.infra.database import SessionLocal
 from freeroad.infra.repositories.sqlalchemy.sqlalchemy_week_repository import SQLAlchemyWeekRepository
+from freeroad.infra.repositories.sqlalchemy.sqlalchemy_user_repository import SQLAlchemyUserRepository
 from freeroad.infra.repositories.in_memory_user_repository import InMemoryUserRepository
 from freeroad.infra.repositories.in_memory_week_repository import InMemoryWeekRepository
 from typing import Generator
@@ -35,6 +36,10 @@ def get_sqlalchemy_week_repository(db: AsyncSession = Depends(get_db)) -> SQLAlc
 # Função para obter o repositório de usuário
 def get_user_repository() -> InMemoryUserRepository:
     return user_repo
+
+# Função para obter o repositório de usuário
+def get_sqlalchemy_user_repository(db: AsyncSession = Depends(get_db)) -> SQLAlchemyUserRepository:
+    return SQLAlchemyUserRepository(session=db)
 
 # Função para obter o usuário atual
 async def get_current_user(credentials: HTTPAuthorizationCredentials = Depends(security)) -> dict:
