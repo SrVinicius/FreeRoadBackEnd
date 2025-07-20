@@ -59,7 +59,7 @@ async def get_current_user_token(
 # Todas as rotas protegidas abaixo:
 @router.get("/", response_model=List[WeekResponse])
 async def get_all_weeks(
-    week_repo=Depends(get_week_repository),
+    week_repo=Depends(get_sqlalchemy_week_repository),
     user=Depends(get_current_user_token)
 ):
     """
