@@ -341,8 +341,8 @@ async def delete_week(
 @router.put(
     "/{week_id}/final_km", 
     response_model=WeekResponse,
-    summary="Atualizar quilometragem final",
-    description="Adiciona a quilometragem final e calcula a eficiência.",
+    summary="Atualizar quilometragem final e calcular eficiência",
+    description="Adiciona a quilometragem final e calcula automaticamente a eficiência de combustível (km/l).",
     responses={
         400: {"description": "Erro de validação", "model": Dict[str, Any]},
         401: {"description": "Não autenticado", "model": Dict[str, Any]},
@@ -353,13 +353,24 @@ async def delete_week(
 async def add_final_km(
     week_id: str,
     data: WeekFinalKm,
-    week_repo=Depends(get_week_repository),
+    week_repo=Depends(get_sqlalchemy_week_repository),
     user=Depends(get_current_user_token)
 ):
     """
-    Adiciona a quilometragem final e calcula a eficiência.
+    Adiciona a quilometragem final e calcula automaticamente a eficiência de combustível (km/l).
+    
+    A eficiência é calculada como: (kmFinal - kmAtual) / litrosAbastecidos
+    
+    Parâmetros:
+        week_id: ID do registro a ser atualizado
+        data: Objeto contendo a quilometragem final (final_km)
+    
+    Retorna:
+        O registro atualizado com a quilometragem final e eficiência calculada
     """
     try:
+        print(f"Atualizando quilometragem final do registro {week_id} para {data.final_km}")
+        
         # Validar quilometragem final
         if not isinstance(data.final_km, (int, float)):
             return JSONResponse(
@@ -379,7 +390,7 @@ async def add_final_km(
                 )
             )
             
-        # Verificar se o registro existe e se a quilometragem final é válida
+        # Verificar se o registro existe
         week = await week_repo.get_by_id(week_id)
         if not week:
             return JSONResponse(
@@ -402,10 +413,27 @@ async def add_final_km(
                         message=f"Quilometragem final ({data.final_km}) deve ser maior ou igual à quilometragem atual ({km_atual})"
                     )
                 )
-        except ValueError:
-            # Se não conseguir converter, deixa passar e confia no usecase
-            pass
+                
+            # Verificar se há litros abastecidos registrados
+            litros = float(week.litrosAbastecidos)
+            if litros <= 0:
+                return JSONResponse(
+                    status_code=status.HTTP_400_BAD_REQUEST,
+                    content=validation_error_response(
+                        field="litrosAbastecidos",
+                        message="Não é possível calcular a eficiência: litros abastecidos deve ser maior que zero"
+                    )
+                )
+                
+            # Verificar se houve deslocamento
+            if data.final_km == km_atual:
+                print("Aviso: Quilometragem final igual à atual. A eficiência será zero.")
             
+        except ValueError as ve:
+            print(f"Erro ao converter valores: {str(ve)}")
+            # Continuar e deixar o repository lidar com isso
+            
+        # Chamar o caso de uso para atualizar kmFinal e calcular eficiência
         usecase = AddFinalKmUseCase(week_repo)
         updated_week = await usecase.execute(week_id, data.final_km)
         
@@ -419,6 +447,7 @@ async def add_final_km(
                 )
             )
         
+        print(f"Registro atualizado com sucesso: km_final={updated_week.kmFinal}, eficiencia={updated_week.eficiencia}")
         return updated_week
     except HTTPException as he:
         return JSONResponse(
@@ -430,36 +459,21 @@ async def add_final_km(
         )
     except Exception as e:
         import traceback
-        print(f"Error updating final km: {str(e)}")
+        print(f"Erro ao atualizar quilometragem final: {str(e)}")
         traceback.print_exc()
+        
+        # Mensagem de erro mais detalhada e específica para o problema de tipos
+        error_msg = str(e)
+        if "unsupported operand type" in error_msg and ("float" in error_msg or "Decimal" in error_msg):
+            error_msg = "Erro ao calcular eficiência: incompatibilidade de tipos numéricos. Reporte este erro ao administrador do sistema."
+            
         return JSONResponse(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
             content=error_response(
                 status_code=500,
-                message=f"Erro ao atualizar quilometragem final: {str(e)}"
+                message=error_msg
             )
         )
-
-
-@router.get("/{user_id}/average_efficiency")
-async def get_average_efficiency(
-    user_id: str,
-    week_repo=Depends(get_week_repository),
-    user=Depends(get_current_user_token)
-):
-    """
-    Calcula a eficiência média de combustível para um usuário.
-    """
-    usecase = CalculateAverageEfficiencyUseCase(week_repo)
-    efficiency = await usecase.execute(user_id)
-    
-    if efficiency is None:
-        raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND,
-            detail="Nenhum dado de eficiência encontrado para este usuário"
-        )
-    
-    return {"average_efficiency": efficiency}
 
 # Funções auxiliares para tratamento de erros em formato padronizado
 def error_response(status_code: int, message: str, details: Any = None) -> Dict[str, Any]:

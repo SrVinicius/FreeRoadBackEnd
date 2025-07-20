@@ -67,17 +67,6 @@ class SQLAlchemyWeekRepository(WeekRepository):
             await self.session.delete(week_model)
             await self.session.commit()
 
-    async def calculate_average_efficiency(self, user_id: str) -> Optional[float]:
-        result = await self.session.execute(
-            select(WeekModel.eficiencia).where(
-                WeekModel.user_id == user_id, WeekModel.eficiencia.isnot(None)
-            )
-        )
-        efficiencies = [float(efficiency) for efficiency in result.scalars().all() if efficiency is not None]
-        if not efficiencies:
-            return None
-        return sum(efficiencies) / len(efficiencies)
-
     async def add_final_km(self, week_id: str, final_km: float) -> Optional[Week]:
         result = await self.session.execute(
             select(WeekModel).where(WeekModel.id == week_id)
@@ -86,7 +75,30 @@ class SQLAlchemyWeekRepository(WeekRepository):
         if not week_model:
             return None
 
-        week_model.km_final = final_km  # Assign float directly; SQLAlchemy handles conversion
+        # Atualiza a quilometragem final
+        week_model.km_final = float(final_km)  # Garantir que é float
+        
+        # Calcula a eficiência de combustível (km/l)
+        try:
+            # Converter para float para garantir operações consistentes
+            km_atual_float = float(week_model.km_atual)
+            final_km_float = float(week_model.km_final)
+            litros_float = float(week_model.litros_abastecidos)
+            
+            km_percorrido = final_km_float - km_atual_float
+            
+            if km_percorrido > 0 and litros_float > 0:
+                # Calcula km/l - quilômetros percorridos dividido por litros abastecidos
+                eficiencia = km_percorrido / litros_float
+                week_model.eficiencia = round(eficiencia, 2)  # Arredonda para 2 casas decimais
+                print(f"Eficiência calculada: {eficiencia:.2f} km/l (km_percorrido={km_percorrido}, litros={litros_float})")
+            else:
+                print(f"Não foi possível calcular eficiência: km_percorrido={km_percorrido}, litros={litros_float}")
+                
+        except Exception as e:
+            print(f"Erro ao calcular eficiência: {str(e)}")
+            # Não propagar o erro, apenas logar
+        
         await self.session.commit()
         await self.session.refresh(week_model)
         return week_model.to_entity()

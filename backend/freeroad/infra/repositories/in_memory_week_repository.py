@@ -45,14 +45,3 @@ class InMemoryWeekRepository(WeekRepository):
             week.eficiencia = str(round(eficiencia, 2))
 
         return week
-
-    async def calculate_average_efficiency(self, user_id: str) -> Optional[float]:
-        user_weeks = await self.get_by_user_id(user_id)
-        efficiencies = [
-            float(week.eficiencia)
-            for week in user_weeks
-            if hasattr(week, "eficiencia") and week.eficiencia not in [None, "", "0"]
-        ]
-        if not efficiencies:
-            return 0.0
-        return sum(efficiencies) / len(efficiencies)

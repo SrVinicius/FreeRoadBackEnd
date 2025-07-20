@@ -22,6 +22,4 @@ class WeekRepository(ABC):
     @abstractmethod
     async def add_final_km(self, week_id: str, final_km: float) -> Optional[Week]: ...
 
-    @abstractmethod
-    async def calculate_average_efficiency(self, user_id: str) -> Optional[float]: ...
     
