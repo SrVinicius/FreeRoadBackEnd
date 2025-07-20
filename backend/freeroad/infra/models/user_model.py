@@ -1,4 +1,4 @@
-from sqlalchemy.orm import Mapped, mapped_column
+from sqlalchemy.orm import Mapped, mapped_column, relationship
 from sqlalchemy import String, Column
 from freeroad.infra.database import Base
 from freeroad.domain.entities.user import User
@@ -14,6 +14,9 @@ class UserModel(Base):
     email: Mapped[str] = mapped_column(String, unique=True, nullable=False)
     password: Mapped[str] = mapped_column(String, nullable=False)
     role: Mapped[str] = mapped_column(String, nullable=False)
+    
+    # Relacionamentos
+    weeks = relationship("WeekModel", back_populates="user", cascade="all, delete-orphan")
 
     def to_entity(self) -> User:
         """

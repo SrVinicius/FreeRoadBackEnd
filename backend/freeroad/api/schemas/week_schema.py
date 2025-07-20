@@ -35,8 +35,6 @@ class WeekResponse(WeekBase):
     user_id: str = Field(..., description="ID do usuário que criou o registro")
     kmFinal: Optional[float] = Field(None, description="Quilometragem final do veículo")
     eficiencia: Optional[float] = Field(None, description="Eficiência em km/l")
-    created_at: datetime = Field(..., description="Data de criação do registro")
-    updated_at: datetime = Field(..., description="Data da última atualização")
 
     class Config:
         orm_mode = True

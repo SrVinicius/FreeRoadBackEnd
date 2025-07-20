@@ -8,7 +8,6 @@ from freeroad.api.deps import get_sqlalchemy_user_repository
 # 
 from freeroad.usecases.user.register_user import RegisterUserUseCase
 from freeroad.usecases.user.login_user import LoginUserUseCase
-from freeroad.usecases.user.logout_user import LogoutUserUseCase
 from freeroad.usecases.user.get_current_user import GetCurrentUserUseCase
 from freeroad.usecases.user.set_current_user import SetCurrentUserUseCase
 from freeroad.domain.entities.user import User
@@ -89,23 +88,6 @@ async def login_user(
     print(f"User authenticated: {user.id}")
     await user_repo.set_current_user(user)
     return {"access_token": user.id, "token_type": "bearer"}
-
-# ----------------------
-# Logout
-# ----------------------
-
-@router.post(
-    "/logout",
-    summary="Fazer o Logout do usuário",
-    description="Descredencia o usuário autenticado.",
-)
-async def logout_user(user=Depends(get_current_user_token)):
-    try:
-        usecase = LogoutUserUseCase(user_repo)
-        await usecase.execute()
-        return {"message": "Logout successful"}
-    except ValueError as e:
-        raise HTTPException(status_code=400, detail=str(e))
 
 # ----------------------
 # Get Current User

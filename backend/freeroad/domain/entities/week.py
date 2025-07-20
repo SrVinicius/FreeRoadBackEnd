@@ -1,4 +1,5 @@
 from datetime import datetime
+from typing import Optional
 
 class Week:
     def __init__(
@@ -11,8 +12,8 @@ class Week:
         custo: str,
         eficiencia: str,
         litrosAbastecidos: str,
-        created_at: datetime,
-        updated_at: datetime,
+        created_at: Optional[datetime] = None,
+        updated_at: Optional[datetime] = None
     ):
         self.id = id
         self.user_id = user_id
@@ -22,5 +23,5 @@ class Week:
         self.custo = custo
         self.eficiencia = eficiencia
         self.litrosAbastecidos = litrosAbastecidos
-        self.created_at = created_at
-        self.updated_at = updated_at
+        self.created_at = created_at or datetime.now()
+        self.updated_at = updated_at or datetime.now()

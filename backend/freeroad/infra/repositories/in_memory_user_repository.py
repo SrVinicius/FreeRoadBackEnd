@@ -23,9 +23,6 @@ class InMemoryUserRepository(UserRepository):
                 return user
         return None
 
-    async def logout(self):
-        self.current_user = None
-
     async def set_current_user(self, user: User) -> None:
         self.current_user = user
 

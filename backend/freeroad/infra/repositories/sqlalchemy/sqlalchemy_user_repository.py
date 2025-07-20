@@ -76,12 +76,6 @@ class SQLAlchemyUserRepository(UserRepository):
             
         return None
 
-    async def logout(self) -> None:
-        """
-        Realiza o logout do usuário atual.
-        """
-        self.current_user = None
-
     async def set_current_user(self, user: User) -> None:
         """
         Define o usuário atual.

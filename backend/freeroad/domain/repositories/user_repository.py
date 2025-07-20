@@ -13,9 +13,6 @@ class UserRepository(ABC):
     async def register(self, user: User) -> User: ...
 
     @abstractmethod
-    async def logout(self) -> None: ...
-
-    @abstractmethod
     async def get_current_user(self) -> User | None: ...
 
     @abstractmethod
