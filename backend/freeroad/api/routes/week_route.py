@@ -81,7 +81,7 @@ async def get_all_weeks(
 @router.get("/{week_id}", response_model=WeekResponse)
 async def get_week_by_id(
     week_id: str,
-    week_repo=Depends(get_week_repository),
+    week_repo=Depends(get_sqlalchemy_week_repository),
     user=Depends(get_current_user_token)
 ):
     """
