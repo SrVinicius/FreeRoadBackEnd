@@ -102,3 +102,35 @@ class SQLAlchemyWeekRepository(WeekRepository):
         await self.session.commit()
         await self.session.refresh(week_model)
         return week_model.to_entity()
+
+    async def calculate_average_efficiency(self, user_id: str) -> Optional[float]:
+        """
+        Calcula a eficiência média de combustível para um usuário.
+        
+        Args:
+            user_id: ID do usuário
+            
+        Returns:
+            float: Eficiência média, ou None se não houver registros
+        """
+        result = await self.session.execute(
+            select(WeekModel.eficiencia).where(
+                WeekModel.user_id == user_id, 
+                WeekModel.eficiencia > 0
+            )
+        )
+        
+        efficiencies = []
+        for efficiency_row in result.scalars().all():
+            try:
+                efficiency = float(efficiency_row)
+                if efficiency > 0:  # Considera apenas valores positivos
+                    efficiencies.append(efficiency)
+            except (ValueError, TypeError):
+                # Ignora valores inválidos
+                pass
+                
+        if not efficiencies:
+            return None
+            
+        return sum(efficiencies) / len(efficiencies)

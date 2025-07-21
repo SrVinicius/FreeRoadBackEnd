@@ -7,6 +7,9 @@ pytest-cov>=6.2.1
 black==24.4.2
 mypy
 ruff
+pytest-asyncio>=0.22.0
+httpx
+asgi-lifespan
 
 python-jose[cryptography]>=3.3.0
 passlib[bcrypt]==1.7.4

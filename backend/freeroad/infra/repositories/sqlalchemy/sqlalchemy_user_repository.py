@@ -76,12 +76,12 @@ class SQLAlchemyUserRepository(UserRepository):
             
         return None
 
-    async def set_current_user(self, user: User) -> None:
+    async def set_current_user(self, user: Optional[User]) -> None:
         """
         Define o usuário atual.
 
         Args:
-            user (User): O usuário a ser definido como atual.
+            user (Optional[User]): O usuário a ser definido como atual ou None para logout.
         """
         self.current_user = user
 
@@ -139,5 +139,17 @@ class SQLAlchemyUserRepository(UserRepository):
 
         Returns:
             User: O usuário criado.
+        """
+        return await self.register(user)
+
+    async def add(self, user: User) -> User:
+        """
+        Adiciona um usuário (alias para register).
+        
+        Args:
+            user (User): O usuário a ser adicionado.
+            
+        Returns:
+            User: O usuário adicionado.
         """
         return await self.register(user)

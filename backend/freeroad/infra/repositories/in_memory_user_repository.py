@@ -23,7 +23,7 @@ class InMemoryUserRepository(UserRepository):
                 return user
         return None
 
-    async def set_current_user(self, user: User) -> None:
+    async def set_current_user(self, user: Optional[User]) -> None:
         self.current_user = user
 
     async def get_by_email(self, email: Email) -> Optional[User]:

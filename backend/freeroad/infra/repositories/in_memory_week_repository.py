@@ -45,3 +45,30 @@ class InMemoryWeekRepository(WeekRepository):
             week.eficiencia = str(round(eficiencia, 2))
 
         return week
+
+    async def calculate_average_efficiency(self, user_id: str) -> Optional[float]:
+        """
+        Calcula a eficiência média de combustível para um usuário.
+        
+        Args:
+            user_id: ID do usuário
+            
+        Returns:
+            float: Eficiência média, ou None se não houver registros
+        """
+        weeks = await self.get_by_user_id(user_id)
+        valid_efficiencies = []
+        
+        for week in weeks:
+            if week.eficiencia and week.eficiencia != "0":
+                try:
+                    efficiency = float(week.eficiencia)
+                    valid_efficiencies.append(efficiency)
+                except ValueError:
+                    # Ignorar valores inválidos
+                    pass
+        
+        if not valid_efficiencies:
+            return None
+            
+        return sum(valid_efficiencies) / len(valid_efficiencies)

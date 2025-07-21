@@ -1,54 +1,51 @@
-# import pytest
-# from freeroad.domain.value_objects.email_vo import Email
-# from freeroad.domain.value_objects.password import Password, PasswordValidationError
+import pytest
+from freeroad.domain.value_objects.email_vo import Email
+from freeroad.domain.value_objects.password import Password, PasswordValidationError
 
 
-# # Teste de criação de email válido
-# def test_valid_email():
-#     email = Email("user@example.com")
-#     assert email.value == "user@example.com"
+def test_valid_email():
+    email = Email("user@example.com")
+    assert email.value == "user@example.com"  # Remove parentheses
 
 
-# # Teste de criação de email inválido
-# def test_invalid_email():
-#     with pytest.raises(ValueError):
-#         Email("invalid-email")
+def test_invalid_email():
+    with pytest.raises(ValueError):
+        Email("invalid-email")
 
 
-# # Teste de criação de senha válida
-# def test_criar_password_valido():
-#     senha = "Senha@123!"
-#     password = Password(senha)
-#     assert isinstance(password, Password)
-#     assert password.verify(senha)
+@pytest.mark.parametrize(
+    "senha_invalida",
+    [
+        "curta",  # Menos de 8 caracteres
+        "semmaiuscula1!",  # Sem letra maiúscula
+        "SEMMINUSCULA1!",  # Sem letra minúscula
+        "SemNumero!",  # Sem número
+        "SemEspecial1",  # Sem caractere especial
+    ],
+)
+def test_senhas_invalidas_disparam_erro(senha_invalida):
+    with pytest.raises(PasswordValidationError):
+        Password(senha_invalida)
 
 
-# # Teste de verificação com senha incorreta
-# def test_password_invalida_nao_verifica():
-#     senha = "Senha@123!"
-#     outra_senha = "Errada456@"
-#     password = Password(senha)
-#     assert not password.verify(outra_senha)
+# Teste de criação de senha válida
+def test_criar_password_valido():
+    senha = "Senha@123!"
+    password = Password(senha)
+    assert isinstance(password, Password)
+    assert password.verify(senha)  # Verifica se a senha original é válida
 
 
-# # Teste de representação em string (usando __str__)
-# def test_str_password_exibe_hash():
-#     senha = "Senha@123!"
-#     password = Password(senha)
-#     assert str(password) == password._hashed
+# Teste de verificação com senha incorreta
+def test_password_invalida_nao_verifica():
+    senha = "Senha@123!"
+    outra_senha = Password("Errada456@")._hashed
+    password = Password(senha)
+    assert not password.verify(outra_senha)
 
 
-# # Teste de senhas inválidas
-# @pytest.mark.parametrize(
-#     "senha_invalida",
-#     [
-#         "curta",  # Menos de 8 caracteres
-#         "semmaiuscula1!",  # Sem letra maiúscula
-#         "SEMMINUSCULA1!",  # Sem letra minúscula
-#         "SemNumero!",  # Sem número
-#         "SemEspecial1",  # Sem caractere especial
-#     ],
-# )
-# def test_senhas_invalidas_disparam_erro(senha_invalida):
-#     with pytest.raises(PasswordValidationError):
-#         Password(senha_invalida)
+# Teste de representação em string (usando __str__)
+def test_str_password_exibe_hash():
+    senha = "Senha@123!"
+    password = Password(senha)
+    assert str(password) == password._hashed

@@ -16,7 +16,6 @@ from freeroad.usecases.week.get_by_user_id import GetWeeksByUserIdUseCase
 from freeroad.usecases.week.create_week import CreateWeekUseCase
 from freeroad.usecases.week.delete_week import DeleteWeekUseCase
 from freeroad.usecases.week.add_final_km import AddFinalKmUseCase
-from freeroad.usecases.week.calculate_average_efficiency import CalculateAverageEfficiencyUseCase
 
 # Import schemas if you have them
 from freeroad.api.schemas.week_schema import (

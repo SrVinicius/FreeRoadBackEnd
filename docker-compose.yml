@@ -8,6 +8,8 @@ services:
     container_name: blog
     env_file:
       - ./backend/.env
+    environment:
+      - PYTHONPATH=/home/devuser/app
     volumes:
       - .:/app
     ports:
