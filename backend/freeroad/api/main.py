@@ -75,12 +75,20 @@ origins = [
     "https://free-road.vercel.app",  # Adicione o domínio do seu frontend
 ]
 
+# app.add_middleware(
+#     CORSMiddleware,
+#     allow_origins=origins,  # Domínios permitidos
+#     allow_credentials=True,  # Permitir envio de cookies
+#     allow_methods=["*"],  # Permitir todos os métodos HTTP
+#     allow_headers=["*"],  # Permitir todos os cabeçalhos
+# )
+
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=origins,  # Domínios permitidos
-    allow_credentials=True,  # Permitir envio de cookies
-    allow_methods=["*"],  # Permitir todos os métodos HTTP
-    allow_headers=["*"],  # Permitir todos os cabeçalhos
+    allow_origins=["*"],  # Permite todas as origens (use apenas em desenvolvimento)
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
 )
 
 # export PYTHONPATH=/home/devuser/app
