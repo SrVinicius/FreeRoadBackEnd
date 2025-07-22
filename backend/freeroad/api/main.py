@@ -1,3 +1,4 @@
+from fastapi.middleware.cors import CORSMiddleware
 from fastapi import FastAPI
 from freeroad.api.routes import user_route, week_route
 from freeroad.api.openapi_tags import openapi_tags
@@ -31,5 +32,20 @@ def ola():
 
 app.include_router(user_route.router, prefix="/users", tags=["Users"])
 app.include_router(week_route.router, prefix="/weeks", tags=["Weeks"])
+
+# Configuração do CORS
+origins = [
+    "http://localhost",  # Permitir localhost para desenvolvimento
+    "http://localhost:3000",  # Exemplo de frontend local
+    "https://free-road.vercel.app",  # Adicione o domínio do seu frontend
+]
+
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=origins,  # Domínios permitidos
+    allow_credentials=True,  # Permitir envio de cookies
+    allow_methods=["*"],  # Permitir todos os métodos HTTP
+    allow_headers=["*"],  # Permitir todos os cabeçalhos
+)
 
 # export PYTHONPATH=/home/devuser/app
