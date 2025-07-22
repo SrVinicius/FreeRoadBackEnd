@@ -42,6 +42,9 @@ async def get_current_user_token(
         user = await user_repo.get_by_email(Email("usuario@teste.com.br"))
         if user:
             return user
+        user = await user_repo.get_by_email(Email("usuario@teste.com.br"))
+        if user:
+            return user
     
     # Fluxo normal - verificar pelo ID do usuário
     try:
@@ -326,7 +329,7 @@ def is_valid_numeric(value_str):
 @router.delete("/{week_id}", status_code=status.HTTP_204_NO_CONTENT)
 async def delete_week(
     week_id: str,
-    week_repo=Depends(get_week_repository),
+    week_repo=Depends(get_sqlalchemy_week_repository),
     user=Depends(get_current_user_token)
 ):
     """

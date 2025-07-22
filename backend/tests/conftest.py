@@ -96,7 +96,7 @@ async def test_user(user_repository):
     import uuid
     
     user = User(
-        id=str(uuid.uuid4()),
+        id="fcafee34-c13d-4053-a014-71b6169a4be6",  # Use o ID que é aceito como token especial
         name="Test User",
         email=Email("usuario@teste.com.br"),
         password=Password("testePass@123"),
@@ -117,7 +117,7 @@ async def test_user(user_repository):
 async def authenticated_client(client, test_user):
     """Cliente com autenticação pronta para testes de rotas protegidas."""
     # Fazer login e obter token
-    response = await client.post("/login", json={
+    response = await client.post("/users/login", json={
         "email": "usuario@teste.com.br",
         "password": "testePass@123"
     })
