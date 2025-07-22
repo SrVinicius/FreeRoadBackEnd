@@ -54,10 +54,35 @@ jobs:
         working-directory: ./backend
         run: make lint
 
+  migrate:
+    name: Run Alembic Migrations
+    runs-on: ubuntu-latest
+    needs: test
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.13"
+
+      - name: Install dependencies
+        working-directory: ./backend
+        run: |
+          pip install --upgrade pip
+          pip install -r requirements.txt
+
+      - name: Run Alembic Migrations
+        working-directory: ./backend
+        env:
+          DATABASE_URL_ALEMBIC: ${{ secrets.DATABASE_URL }}
+        run: alembic upgrade head
+
   deploy:
     name: Trigger Render Deploy
     runs-on: ubuntu-latest
-    needs: test
+    needs: migrate
     if: success()
 
     steps:
