@@ -65,30 +65,26 @@ async def debug_environment():
     }
 
 
-app.include_router(user_route.router, prefix="/users", tags=["Users"])
-app.include_router(week_route.router, prefix="/weeks", tags=["Weeks"])
-
-# Configuração do CORS
-origins = [
-    "http://localhost",  # Permitir localhost para desenvolvimento
-    "http://localhost:3000",  # Exemplo de frontend local
-    "https://free-road.vercel.app",  # Adicione o domínio do seu frontend
-]
-
-# app.add_middleware(
-#     CORSMiddleware,
-#     allow_origins=origins,  # Domínios permitidos
-#     allow_credentials=True,  # Permitir envio de cookies
-#     allow_methods=["*"],  # Permitir todos os métodos HTTP
-#     allow_headers=["*"],  # Permitir todos os cabeçalhos
-# )
-
+# Configuração do CORS - Importante: isso deve vir ANTES da inclusão dos routers
+# para garantir que os cabeçalhos CORS sejam aplicados a todas as rotas
 app.add_middleware(
     CORSMiddleware,
     allow_origins=["*"],  # Permite todas as origens (use apenas em desenvolvimento)
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
+    expose_headers=["*"]  # Expõe todos os cabeçalhos na resposta
 )
+
+app.include_router(user_route.router, prefix="/users", tags=["Users"])
+app.include_router(week_route.router, prefix="/weeks", tags=["Weeks"])
+
+# Configuração original do CORS (mantida como comentário para referência)
+# origins = [
+#     "http://localhost",  # Permitir localhost para desenvolvimento
+#     "http://localhost:3000",  # Exemplo de frontend local
+#     "http://localhost:5173",  # Vite/Vue/React dev server
+#     "https://free-road.vercel.app",  # Adicione o domínio do seu frontend
+# ]
 
 # export PYTHONPATH=/home/devuser/app
